@@ -10,8 +10,8 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 
 ## 🗂️ Dataset Structure
 
-├── train/ # Labeled images (for fine-tuning)|
-|── test/                                    |
+## ├── train/ # Labeled images (for fine-tuning)|
+## |── test/                                    |
 
 
 ---

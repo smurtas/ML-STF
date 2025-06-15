@@ -17,7 +17,7 @@ ML-STF/
 ├── resNet18.ipynb # ResNet18 feature extraction notebook  
 ├── siamese.ipynb # Siamese network training and inference  
 ├── submit.py # Script to generate submission JSON from embeddings  
-├── Best Model - CLIP.ipnb # The best image retrieval model we employed
+├── Best Model - CLIP.ipnb # The best image retrieval model we employed  
 ├── LICENSE # License for the repository  
 └── README.md # This file                   |
 

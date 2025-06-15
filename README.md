@@ -13,6 +13,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 ML-STF/  
 ├── AllModelsPrepared/ # Folder containing all the models prepared for the competition  
 ├── OtherModelsTested/ # Folder containing the models we employed in the competition  
+├── Papers/ # Report and related files  
 ├── train/ # Labeled training data (used for fine-tuning)  
 ├── test/ # Query and gallery sets for retrieval task    
 ├── submit.py # Script to generate submission JSON from dictionary  

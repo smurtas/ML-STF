@@ -13,7 +13,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 ML-STF/  
 ├── train/ # Labeled training data (used for fine-tuning)  
 ├── test/ # Query and gallery sets for retrieval task  
-├── compModels.ipynb # Notebook comparing multiple model performances  
+├── compModels.ipynb # Notebook containing the models we developed  
 ├── resNet18.ipynb # ResNet18 feature extraction notebook  
 ├── siamese.ipynb # Siamese network training and inference  
 ├── submit.py # Script to generate submission JSON from embeddings  

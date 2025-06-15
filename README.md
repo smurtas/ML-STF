@@ -10,11 +10,11 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 
 ## 🗂️ Dataset Structure
 
-ML-STF/
+Data_example/
 ├── train/ # Labeled images (for fine-tuning)
 └── test/
-
-                           |
+├── gallery/ # Images to search from
+└── query/ # Images to search for                              |
 
 
 ---

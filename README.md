@@ -11,7 +11,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 ## 🗂️ Dataset Structure
 
 Data_example/
-├── train/ # Labeled images (for fine-tuning)
+├── training/ # Labeled images (for fine-tuning)
 └── test/
 ├── gallery/ # Images to search from
 └── query/ # Images to search for                              |

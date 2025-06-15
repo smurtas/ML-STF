@@ -8,7 +8,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 
 ---
 
-## 🗂️ Dataset Structure
+## Dataset Structure
 
 ML-STF/  
 ├── train/ # Labeled training data (used for fine-tuning)  
@@ -17,16 +17,14 @@ ML-STF/
 ├── resNet18.ipynb # ResNet18 feature extraction notebook  
 ├── siamese.ipynb # Siamese network training and inference  
 ├── submit.py # Script to generate submission JSON from embeddings  
-├── submission7.json # Retrieval results from model 7  
-├── submission8.json # Retrieval results from model 8  
-├── submission_results.json # Final submission result  
+├── Best Model - CLIP.ipnb # The best image retrieval model we employed
 ├── LICENSE # License for the repository  
 └── README.md # This file                   |
 
 
 ---
 
-## 🧩 Task Pipeline
+## Task Pipeline
 
 1. **Feature Extraction**  
    Using pretrained or fine-tuned models to extract embeddings from both query and gallery images.
@@ -39,9 +37,9 @@ ML-STF/
 
 ---
 
-## 📚 Models Used
+## Models Used
 
-### ✅ Deployed in Competition
+### Deployed in Competition
 
 | Model                | Description                                                                 | Accuracy |
 |----------------------|-----------------------------------------------------------------------------|----------|
@@ -54,7 +52,7 @@ ML-STF/
 
 > Note: Accuracy is based on the competition’s top-k metric. Some promising models were not deployed in time due to training overhead.
 
-### 🚫 Not Deployed in Time (ND)
+### Not Deployed in Time (ND)
 
 - **ResNet50 (Fine-Tuned)** – retrained with task-specific labels.
 - **CLIP (Fine-Tuned)** – fine-tuned vision-language alignment.
@@ -65,7 +63,7 @@ ML-STF/
 
 ---
 
-## 🔬 Key Insights
+## Key Insights
 
 - **CLIP (Zero-Shot)** delivered the best performance without any additional training, showcasing the power of large-scale multimodal pretraining.
 - **Siamese Networks** and **ViT models** offered a strong trade-off between training time and accuracy.
@@ -73,7 +71,7 @@ ML-STF/
 
 ---
 
-## 📈 Evaluation
+## Evaluation
 
 The models were evaluated using **top-k accuracy**, defined as:
 
@@ -83,7 +81,7 @@ Visual inspection was also used to qualitatively assess the retrieval consistenc
 
 ---
 
-## 📎 Technologies Used
+## Technologies Used
 
 - **PyTorch** — Model training and inference
 - **Torchvision / Timm** — CNN and ViT backbones
@@ -93,7 +91,7 @@ Visual inspection was also used to qualitatively assess the retrieval consistenc
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 | Name             | Models Implemented                                          | Report | Repository |
 |------------------|-------------------------------------------------------------|--------|------------|
@@ -102,7 +100,7 @@ Visual inspection was also used to qualitatively assess the retrieval consistenc
 
 ---
 
-## 📝 References
+## References
 
 - He et al., *Deep Residual Learning for Image Recognition*, CVPR 2016.
 - Radford et al., *Learning Transferable Visual Models from Natural Language Supervision*, ICML 2021.
@@ -114,7 +112,7 @@ Visual inspection was also used to qualitatively assess the retrieval consistenc
 
 ---
 
-## 💾 Repository
+## Repository
 
 All code and submission files are available at:  
 👉 [GitHub Repository](https://github.com/smurtas/ML-STF.git)

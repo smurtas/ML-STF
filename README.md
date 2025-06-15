@@ -11,7 +11,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 ## Dataset Structure
 
 ML-STF/  
-├── AllModelsPrepared/ # Folder containing all the models prepared for the competition 
+├── AllModelsPrepared/ # Folder containing all the models prepared for the competition  
 ├── OtherModelsTested/ # Folder containing the other models we developed  
 ├── train/ # Labeled training data (used for fine-tuning)  
 ├── test/ # Query and gallery sets for retrieval task    

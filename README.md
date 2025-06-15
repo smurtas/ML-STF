@@ -1,4 +1,4 @@
-# Image Similarity Retrieval — Machine Learning Competition
+# Image Similarity Retrieval - Machine Learning Competition
 
 ## Overview
 
@@ -12,7 +12,7 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 
 ML-STF/  
 ├── AllModelsPrepared/ # Folder containing all the models prepared for the competition  
-├── OtherModelsTested/ # Folder containing the other models we developed  
+├── OtherModelsTested/ # Folder containing the models we employed in the competition  
 ├── train/ # Labeled training data (used for fine-tuning)  
 ├── test/ # Query and gallery sets for retrieval task    
 ├── submit.py # Script to generate submission JSON from dictionary  

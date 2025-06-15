@@ -21,6 +21,12 @@ ML-STF/
 ├── LICENSE # License for the repository  
 └── README.md # This file                   |
 
+---
+
+## Instructions
+1. Run the desired model.
+
+2. Run submission.py
 
 ---
 

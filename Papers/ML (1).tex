@@ -131,13 +131,15 @@ This image similarity task provided a valuable opportunity to experiment with a 
 
 One of the clearest takeaways was the outstanding performance of the CLIP (Zero-Shot) model. Without any task-specific fine-tuning, CLIP significantly outperformed all other approaches. Its success illustrates the practical benefits of large-scale pre-training on diverse multimodal data and highlights how foundation models can generalize remarkably well to downstream retrieval tasks.
 
-Other models, such as Siamese Networks and HuggingFace ViT, demonstrated a not so good performance, although this is balanced by their lower resource demands and faster training time. These models might be considered as alternatives in time-constrained settings where full fine-tuning or training from scratch is not feasible.
+Other models, such as Siamese Networks and HuggingFace ViT, demonstrated lower retrieval performance compared to CLIP. While HuggingFace ViT benefited from lower training overhead, Siamese Networks required longer training times due to their pair-based structure. These models may still be considered in scenarios where task-specific fine-tuning is acceptable and computational budget allows.
 
 Several of our most theoretically promising models, including ArcFace, Triplet Networks, and SimCLR, were not deployable within the competition's two-hour time frame. This reflects an important trade-off between model expressiveness and practical usability. Although these models often achieve excellent results in offline experiments, their training time and tuning requirements make them less suitable for time-critical environments unless prepared in advance.
 
 The integration of FAISS for similarity search highlighted another important consideration: even with efficient indexing, the overall system performance is still limited by the quality of the underlying embeddings. This reinforced the importance of focusing on robust and generalizable feature extraction as a foundation for retrieval performance.
 
 This challenge emphasized not only the accuracy of the model, but also the importance of efficiency and strategic model selection in applied machine learning.
+
+Future improvements could include offline embedding computation, exploring hybrid retrieval pipelines, or incorporating lightweight self-supervised fine-tuning strategies. These adjustments may help balance performance and feasibility under real-time constraints.
 
 \section{Workload Table}
 In the following table, we report the contributions of each member. The ‘Models’ row reports the models each member created that were used on competition day, the 'Models ND' row reports the models each member created but did not use, the 'Report' row represents the contribution to the writing of the report, and the ‘Repository’ row indicates the contribution to the creation of the GitHub repository for this project.

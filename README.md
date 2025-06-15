@@ -10,11 +10,18 @@ The competition required balancing **accuracy**, **speed**, and **resource const
 
 ## 🗂️ Dataset Structure
 
-Data_example/
-├── training/ # Labeled images (for fine-tuning)
-└── test/
-├── gallery/ # Images to search from
-└── query/ # Images to search for                              |
+ML-STF/  
+├── train/ # Labeled training data (used for fine-tuning)  
+├── test/ # Query and gallery sets for retrieval task  
+├── compModels.ipynb # Notebook comparing multiple model performances  
+├── resNet18.ipynb # ResNet18 feature extraction notebook  
+├── siamese.ipynb # Siamese network training and inference  
+├── submit.py # Script to generate submission JSON from embeddings  
+├── submission7.json # Retrieval results from model 7  
+├── submission8.json # Retrieval results from model 8  
+├── submission_results.json # Final submission result  
+├── LICENSE # License for the repository  
+└── README.md # This file                   |
 
 
 ---

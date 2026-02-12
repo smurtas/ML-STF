@@ -20,100 +20,47 @@
 \maketitle
 \section{Introduction}
 \subsection{Task Description}
-The goal of this competition was to design and implement an instance-level image retrieval system. Given a query image depicting a real photograph of a celebrity, the system is required to return the top-k most similar images from a gallery containing synthetic images of the same celebrities rendered in different visual styles. \\
-Unlike standard classification tasks, this problem does not involve assigning category labels. Instead, it requires precise instance matching across visually diverse representations of the same identity. Each query image must be matched to the corresponding identity within a pool of stylistically heterogeneous candidates.\\
-The dataset is divided into three splits: a training set, a query set, and a gallery set. The training set consists of approximately 5,900 images organized by identity, where each identity is represented by a dedicated sub-folder containing multiple images of the same celebrity, including both natural and synthetic variations. \\
-The test set is composed of 1,456 query images and 1,480 gallery images. The query set contains real photographs, while the gallery contains synthetic images generated in different visual styles. For each query image, the system must retrieve the top-k most similar gallery images, ranked by similarity.\\
-The competition imposed a strict two-hour time constraint, which significantly influenced model selection, training strategies, and deployment decisions.
-
+The goal of this competition was to build an image retrieval system capable of bridging a significant real-to-synthetic domain shift. We were asked to take a query image a real photograph of a celebrity and identify the most similar matches from a gallery set. The difficulty stemmed from the fact that the gallery was composed entirely of synthetic versions of those celebrities, including 3D renders, AI-generated images, and stylized illustrations.\\
+Unlike standard classification, this task required precise identity matching across visually different domains. The dataset provided a training split of about 5900 images (natural and synthetic) to help us understand these relationships. The final evaluation was conducted on a test set of 1456 real queries and 1480 synthetic gallery images. The main technical hurdle was that real photos contain natural details like skin texture and complex lighting that are absent or distorted in synthetic renders. Managing this within a strict two-hour window forced us to prioritize models that could handle these stylistic discrepancies efficiently.
 \subsection{Overview of Approaches}
-To address this task, we explored a range of deep learning approaches spanning classical convolutional architectures, metric-learning frameworks, and large-scale contrastively pretrained models. Given the strong domain shift between real query images and synthetic gallery images, our objective was to identify representations capable of preserving identity-level similarity across heterogeneous visual styles.
-
-All evaluated methods followed a common retrieval pipeline:
-
-\begin{enumerate}
-\item \textbf{Feature Extraction}: A pre-trained or lightly fine-tuned backbone was used to extract fixed-dimensional embeddings from both query and gallery images.
-\item \textbf{Normalization \& Similarity}: Embeddings were L2-normalized and cosine similarity was computed between query and gallery representations.
-\item \textbf{Top-k Retrieval}: For each query image, the top-k most similar gallery images were returned based on similarity scores.
-\end{enumerate}
-
-The models considered can be grouped into three main categories:
-
-\begin{itemize}
-\item \textbf{Classification-pretrained CNNs}: ResNet variants (pre-trained and partially fine-tuned) used as feature extractors.
-\item \textbf{Metric-learning approaches}: Siamese Networks, Triplet Networks, ArcFace, and SimCLR, designed to explicitly optimize embedding geometry through contrastive or margin-based losses.
-\item \textbf{Large-scale contrastively pretrained models}: CLIP (zero-shot and exploratory fine-tuned variants), providing semantically structured embeddings trained on heterogeneous web-scale data.
-\end{itemize}
-
-Additionally, we experimented with Vision Transformer models from HuggingFace and architectures available in the Timm library as pretrained embedding backbones. \textbf{FAISS} was evaluated as a scalable similarity search mechanism to assess the impact of indexing efficiency on retrieval performance.
+To address this task, we experimented with three main strategies. First, we used CLIP in a zero-shot setting, hoping its massive pre-training on diverse data would allow it to recognize identity while ignoring stylistic changes. Second, we implemented Siamese Networks using a ResNet18 backbone to explicitly teach the model that a real photo and a synthetic render of the same person belong together. Finally, we used standard ResNet architectures (both pretrained and fine-tuned) as a baseline to see if traditional convolutional features could hold up under the domain shift.
 
 \subsection{Summary of Results}
-Across our experiments, \textbf{CLIP} consistently achieved the highest performance in terms of top-k retrieval accuracy while maintaining efficient inference time. In contrast, classification-pretrained CNNs and lightweight metric-learning models obtained substantially lower retrieval accuracy under the same evaluation protocol.\\
-For several metric-learning architectures, extended training would likely have improved performance; however, under the competition’s strict time constraints, full convergence and extensive hyperparameter tuning were not feasible.\\Model performance was evaluated both quantitatively, using top-k retrieval accuracy, and qualitatively through visual inspection of the retrieved results to assess consistency and robustness.
+The competition server showed that CLIP Zero-Shot was the most effective approach by a wide margin. It achieved a score of 345.57, significantly outperforming our other attempts. While the Siamese and ResNet models provided a baseline, they struggled to generalize across the real-to-synthetic gap in such a short amount of time. CLIP's ability to grasp the "concept" of the person’s face proved much more robust than the texture-based features of the other models.
 
 \section{Models Considered}
 In this section, we describe the models evaluated for the instance-level image retrieval task, outlining their theoretical foundations and relevant literature. The selected approaches span classification-pretrained convolutional networks, metric-learning frameworks, self-supervised contrastive methods, and large-scale multimodal models. These paradigms represent different strategies for structuring embedding spaces, allowing us to compare how their training objectives influence retrieval performance under real-to-synthetic domain shift.
+Although several architectures were explored during preparation, only a subset was fully deployed during the competition due to the strict two-hour time constraint. The remaining models are described to contextualize the design space considered rather than to report fully optimized results.
+
 \subsection{CLIP (Contrastive Language-Image Pretraining)}
-\textbf{Description:} CLIP (Radford et al., 2021) is a multimodal architecture trained using a large-scale contrastive objective on approximately 400 million image--text pairs. The model jointly learns an image encoder (based on either a Vision Transformer or a ResNet backbone) and a text encoder, projecting both modalities into a shared embedding space. During training, matching image--text pairs are encouraged to have high cosine similarity, while non-matching pairs are pushed apart.
-Unlike classification-pretrained networks optimized with cross-entropy loss, CLIP directly structures the embedding space through contrastive learning. This results in representations where cosine similarity reflects high-level semantic alignment rather than purely category-based discrimination.
-Such properties make CLIP particularly suitable for instance-level retrieval tasks under domain shift. In our setting, where real query images must be matched with synthetic gallery images of the same identity, robustness to stylistic variation is essential.
-We evaluated CLIP in a zero-shot configuration and explored a lightweight fine-tuned variant using image--label text pairs derived from the training identities.\\\\
+\textbf{Description:} CLIP (Radford et al., 2021) was our most successful model. It uses a ViT-L/14 backbone trained on 400 million image-text pairs. We chose it because its contrastive pre-training allows it to learn high-level identity features. For our implementation, we used the model in a zero-shot configuration, extracting 768 dimensional embeddings which were L2 normalized to compute cosine similarity. The contrastive objective helps organize the embedding space so that semantically related images remain close even when low-level visual details differ. This allows CLIP to rely more on global identity structure rather than purely textural patterns, making it more robust to stylistic discrepancies compared to classification-pretrained CNNs.\\
 
 \textbf{Reference:} Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., ... \& Sutskever, I. (2021). Learning transferable visual models from natural language supervision. In \textit{International Conference on Machine Learning (ICML)}.
 
+\subsection{Siamese Networks}
+\textbf{Description:}Siamese Networks (Koch et al., 2015) consist of two identical subnetworks sharing parameters and trained using contrastive loss. We implemented a Siamese Network using a ResNet18 backbone. We optimized the architecture using a Contrastive Loss function, which acts as a distance-based regularizer. By enforcing a margin $m$, the model attempts to map the intra-class variance below the inter-class separation a fundamental requirement for effective identity retrieval in unseen domains. The objective was to minimize the distance between positive pairs (same identity) and maximize it for negative pairs. We used a margin $m=1.0$, the Adam optimizer with a learning rate of $10^{-4}$, and a batch size of 32 for 5 epochs. Due to the two-hour limit, we could only train on a limited number of pairs, which significantly impacted the model's ability to reach convergence.\\
+
+\textbf{Reference:} Koch, G., Zemel, R., \& Salakhutdinov, R. (2015). Siamese neural networks for one-shot image recognition. In \textit{ICML Workshop}.
 \subsection{ResNet (Pretrained \& Fine-Tuned)}
-\textbf{Description:} Residual Networks (ResNet) (He et al., 2016) are deep convolutional architectures that introduce identity skip connections to facilitate the training of very deep models. Pretrained on ImageNet for category classification, ResNet backbones are widely used as generic feature extractors in transfer learning settings.
-In this work, we employed both ResNet50 and ResNet18. ResNet18 was used as a lightweight baseline, while ResNet50 provided a deeper architecture with higher representational capacity.
-\begin{itemize}
-  \item \textbf{Pretrained:} The final classification layer was removed and intermediate feature representations were used as image embeddings.
-  \item \textbf{Fine-Tuned:} The network was partially retrained on the labeled training identities to adapt feature representations to the domain-specific identity retrieval setting.
-\end{itemize}
-Although effective for category-level discrimination, classification-pretrained networks are not explicitly optimized to preserve fine-grained instance-level similarity across domain shifts.\\\\
+\textbf{Description:} We used ResNet18 and ResNet50 pretrained on ImageNet. For the fine-tuned version, we retrained the model on the 5900 training images using Cross-Entropy Loss for 10 epochs with a learning rate of 0.00001. We then removed the final classification head to use the remaining layers as a feature extractor. However, optimizing cross-entropy for identity classification does not explicitly enforce geometric separation in embedding space, which is critical for retrieval.\\
 
 \textbf{Reference:} He, K., Zhang, X., Ren, S., \& Sun, J. (2016). Deep residual learning for image recognition. In \textit{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}.
 
-\subsection{Siamese Networks}
-\textbf{Description:} Siamese Networks (Koch et al., 2015) consist of two identical subnetworks sharing parameters and trained using contrastive loss. The model learns to minimize the embedding distance between positive pairs and maximize it for negative pairs.
-This pairwise training strategy directly aligns embedding geometry with similarity constraints, making Siamese architectures a natural candidate for instance-level retrieval tasks.\\\\
+\subsection{Vision Transformers (HuggingFace ViT)} In addition to CLIP and ResNet, we deployed a Vision Transformer (ViT) from the HuggingFace library as an alternative feature extractor. Specifically, we utilized the vit-base-patch16-224 model pretrained on ImageNet-21k. Unlike standard CNNs, which rely on local convolutional filters, ViT uses self-attention mechanisms to capture global dependencies across the entire image. This architectural difference allowed the model to focus on the overall facial structure and geometry rather than being distracted by the local texture discrepancies caused by the real-to-synthetic domain shift. We extracted the embeddings from the classification token, resulting in a 768 dimensional vector that achieved a competitive score of 43.37. \\ 
+\\
+\textbf{Reference:} Dosovitskiy, A., Beyer, L., Kolesnikov, A., et al. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. In \textit{International Conference on Learning Representations (ICLR)}.
 
-\textbf{Reference:} Koch, G., Zemel, R., \& Salakhutdinov, R. (2015). Siamese neural networks for one-shot image recognition. In \textit{ICML Workshop}.
+\subsection{Preliminary Explorations (Not Deployed)} During the initial preparation phase, we considered several other metric-learning and self-supervised architectures, such as ArcFace, Triplet Networks, and SimCLR. While these models are theoretically well-suited for instance-level retrieval and identity matching, they require extensive "hard-negative mining" and long convergence times to effectively structure the embedding space. Given the strict two-hour competition limit, we decided not to deploy them as we could not ensure stable training or proper hyperparameter tuning within the window. Instead, we prioritized the robust zero-shot capabilities of CLIP and the more straightforward adaptation of the Siamese and ResNet pipelines.\\
 
-\subsection{Triplet Networks}
-\textbf{Description:} Triplet-based learning (Schroff et al., 2015) optimizes embedding geometry by training on anchor--positive--negative triplets. The triplet loss enforces a margin between the distance of the anchor to a positive sample (same identity) and the distance to a negative sample (different identity). 
-This formulation directly shapes relative similarity relationships in embedding space and is theoretically well aligned with instance-level retrieval tasks.\\\\
-\textbf{Reference:} Schroff, F., Kalenichenko, D., \& Philbin, J. (2015). FaceNet: A unified embedding for face recognition and clustering. In \textit{CVPR}.
-
-\subsection{ArcFace}
-\textbf{Description:} ArcFace (Deng et al., 2019) introduces an additive angular margin to the softmax loss, encouraging intra-class compactness and inter-class separability in normalized embedding space. By operating in angular space, ArcFace improves discriminative power for identity-level recognition tasks.
-Such angular-margin losses are particularly relevant for face and identity retrieval, where precise separation between identities is required.\\\\
-\textbf{Reference:} Deng, J., Guo, J., Xue, N., \& Zafeiriou, S. (2019). ArcFace: Additive angular margin loss for deep face recognition. In \textit{CVPR}.
-
-\subsection{SimCLR (Simple Framework for Contrastive Learning)}
-\textbf{Description:} SimCLR (Chen et al., 2020) is a self-supervised contrastive learning framework that learns invariant representations through data augmentation and a contrastive objective. Positive pairs are generated through different augmentations of the same image, while negative samples are drawn from other images in the batch.
-By explicitly optimizing representation invariance, SimCLR provides a mechanism to learn embedding spaces without requiring explicit identity labels.\\\\
-\textbf{Reference:} Chen, T., Kornblith, S., Norouzi, M., \& Hinton, G. (2020). A simple framework for contrastive learning of visual representations. In \textit{ICML}.
-
-\subsection{Vision Transformers (ViT \& Timm)}
-
-\textbf{Description:} Vision Transformers (ViT) (Dosovitskiy et al., 2021) model images as sequences of fixed-size patches and process them using self-attention mechanisms. Unlike convolutional architectures, which rely on local receptive fields, transformers capture global relationships between image regions from early layers.
-Pretrained ViT models from the HuggingFace Transformers library and additional architectures available in the Timm (PyTorch Image Models) repository were evaluated as alternative embedding backbones. In these configurations, the final classification layer was removed and intermediate feature representations were used as fixed-dimensional embeddings.
-Transformer-based architectures are theoretically advantageous in retrieval settings due to their ability to encode global structural information. However, similar to classification-pretrained CNNs, when trained with cross-entropy objectives they are not explicitly optimized for instance-level embedding geometry.\\\\
-\textbf{Reference:} Dosovitskiy, A., Beyer, L., Kolesnikov, A., et al. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. In \textit{ICLR}.
-
-\subsection{FAISS (Facebook AI Similarity Search)}
-\textbf{Description:} FAISS (Johnson et al., 2019) is a library for efficient nearest-neighbor search in high-dimensional embedding spaces. It enables scalable similarity search over large galleries by optimizing indexing and distance computation.
-While FAISS improves computational efficiency, retrieval accuracy ultimately depends on the discriminative quality of the extracted embeddings.\\\\
-\textbf{Reference:} Johnson, J., Douze, M., \& Jégou, H. (2019). Billion-scale similarity search with GPUs. \textit{IEEE Transactions on Big Data}.
 
 \section{Evaluation}
+All models were evaluated under the same retrieval protocol. 
 
-All models were evaluated under the same retrieval protocol. For each query image, embeddings were extracted and L2-normalized before computing cosine similarity against all gallery embeddings. The top-5 most similar gallery images were returned as the retrieval output.
-
-Performance was measured using Top-5 accuracy, defined as the proportion of query images for which the correct identity appears among the top-5 retrieved gallery images.
-
-For metric-learning approaches, lightweight training configurations were adopted to ensure stable execution within the two-hour competition window. These included 5--10 training epochs, batch sizes of 16 or 32, learning rates of $10^{-4}$ or $10^{-5}$, and an embedding dimension of 256. Approximately 2,000 training pairs were used when applicable.
+Performance was measured using Top-5 accuracy, defined as the proportion of query images for which the correct identity appears among the top-5 retrieved gallery images. With 1456 queries and k=5, the maximum number of possible correct matches is 7280. This provides a reference scale for interpreting the absolute scores returned by the competition server.\\
+For metric-learning approaches, lightweight training configurations were adopted to ensure stable execution within the two-hour competition window. These included 5-10 training epochs, batch sizes of 16 or 32, learning rates of $10^{-4}$ or $10^{-5}$, and an embedding dimension of 256. Approximately 2,000 training pairs were used when applicable.
 
 \subsection{Quantitative Results}
+The values reported in Table 1 correspond to the official Top-5 scores provided by the competition server. These scores reflect the total number of successful retrievals across all queries, weighted according to ranking performance.
 
 Table~\ref{tab:results} reports the Top-5 retrieval accuracy obtained by the evaluated models.
 
@@ -144,23 +91,21 @@ Timm & ND \\
 CLIP in a zero-shot configuration achieved the highest retrieval accuracy by a substantial margin. The performance gap between CLIP and the next-best baseline (Siamese Networks) indicates that the quality of the representation and the pretraining objective play a decisive role in this retrieval setting.
 
 CNNs pretrained in classification (ResNet variants) obtained considerably lower accuracy, suggesting that category-level training objectives are less suited for identity-level retrieval under a real-to-synthetic domain shift.
+In absolute terms, CLIP retrieves more than 300 correct matches, while Siamese remains below 50 and ResNet variants remain around 30. This gap indicates a structural difference in embedding quality rather than a marginal improvement.
+
 \subsection{Qualitative Observations}
 Qualitative inspection of the retrieved results further supports the quantitative findings. CLIP embeddings were generally robust to stylistic discrepancies between real query images and synthetic gallery images. Correct matches were often retrieved despite variations in pose, illumination, or rendering style.
 
-In contrast, CNNs  pretrained in classification frequently retrieved visually similar but identity-mismatched synthetic images, indicating sensitivity to low-level visual features rather than identity-level structure.
+In contrast, CNNs pretrained in classification frequently retrieved visually similar but identity-mismatched synthetic images, indicating sensitivity to low-level visual features rather than identity-level structure.
 
 \section{Final Discussion}
+The competition highlighted the importance of picking the right model for the specific domain. In a real-to-synthetic task, traditional CNNs like ResNet are at a disadvantage because they are too sensitive to texture changes. On the other hand, foundation models like CLIP are much more robust because they prioritize identity over style.
 
-This competition highlighted the importance of aligning model pretraining objectives with the structural properties of the downstream task. The instance-level retrieval setting, combined with the real-to-synthetic domain shift between query and gallery images, imposed strict requirements on embedding robustness and geometric consistency.
+The two-hour time limit was a deciding factor. This demonstrated that strong pretrained representations can outperform partially optimized specialized architectures under strict time constraints. For future work, we would focus on using CLIP as a base and applying a very light fine-tuning (like LoRA) to adapt it to the specific celebrity faces in the dataset, while maintaining its robustness to style changes.\\
+Overall, this project made it clear that the choice of training objective can matter more than architectural complexity when dealing with cross-domain retrieval.\\
+Future work could explore controlled fine-tuning of CLIP on identity-level supervision, more systematic hyperparameter optimization for metric-learning methods, or hybrid pipelines combining contrastive pretraining with identity-specific adaptation.\\
 
-The strongest empirical result was achieved by CLIP in a zero-shot configuration. Its superior performance can be attributed to its large-scale contrastive pretraining on heterogeneous image--text data, which encourages style-invariant and semantically structured embeddings. In the presence of substantial stylistic variability between real photographs and synthetic renderings, such invariance proved critical.
-
-In contrast, classification-pretrained CNNs such as ResNet, despite their effectiveness in category-level recognition, are not explicitly optimized to preserve fine-grained identity-level similarity under domain shift. This mismatch between training objective and retrieval geometry likely contributed to their lower performance.\\
-Metric-learning approaches, including Siamese Networks and Triplet-based methods, are theoretically well aligned with retrieval tasks due to their explicit optimization of embedding distances. However, under the competition’s strict two-hour time constraint, only lightweight training configurations were feasible. Fully optimized metric-learning pipelines would require more extensive pair or triplet mining strategies and longer convergence times.\\
-The experiments also demonstrated that improvements in similarity indexing (e.g., through FAISS) cannot compensate for suboptimal embedding representations. Retrieval performance is fundamentally determined by the discriminative quality and structural properties of the learned feature space.\\
-Overall, this project emphasized that, in time-constrained practical settings, selecting a model whose pretraining objective naturally aligns with the downstream task can be more effective than attempting to adapt complex architectures through limited fine-tuning. Large-scale contrastively pretrained models provide a strong baseline for cross-domain instance retrieval tasks.\\
-Future work could explore controlled fine-tuning of CLIP on identity-level supervision, more systematic hyperparameter optimization for metric-learning methods, or hybrid pipelines combining contrastive pretraining with identity-specific adaptation.
-
+Despite its success, CLIP occasionally struggled with identities featuring heavy occlusions or extreme lighting variations in the synthetic domain. This suggests that while semantic embeddings are robust to style, they still benefit from domain-specific structural alignment.
 \section{Workload Table}
 The following table summarizes the contributions of each team member.
 The Models row indicates the models developed by each member that were deployed during the competition. The Models ND (Not Deployed) row lists models implemented but not used in the final submission. The Report row reflects each member’s contribution to the writing and revision of this document, while the Repository row specifies contributions to the development and organization of the project’s GitHub repository.
@@ -168,7 +113,7 @@ The Models row indicates the models developed by each member that were deployed 
 \begin{table}[ht]
 \centering
 \caption{Models' accuracy in the image retrieval task. ND: not deployed in the competition.}
-\begin{tabular}{l p{6.5cm}}
+\begin{tabular}{l p{4.5cm}}
 \hline
 \textbf{Member} & \textbf{Contributions} \\
 \hline
